@@ -17,8 +17,9 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            height: 100vh;
             padding: 20px;
+            overflow: hidden;
         }
 
         .container {
@@ -30,13 +31,15 @@
             overflow: hidden;
             display: grid;
             grid-template-columns: 400px 1fr;
-            min-height: 80vh;
+            height: 100vh;
         }
 
         .panel-left {
             background: #f8fafc;
             padding: 30px;
             border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+            height: 100vh;
         }
 
         .panel-right {
@@ -45,6 +48,8 @@
             justify-content: center;
             position: relative;
             transition: background-color 0.3s ease;
+            height: 100vh;
+            overflow: hidden;
         }
 
         h1 {
@@ -78,17 +83,17 @@
 
         .color-palette {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 6px;
             margin-bottom: 20px;
         }
 
         .color-option {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
             cursor: pointer;
-            border: 3px solid transparent;
+            border: 2px solid transparent;
             transition: all 0.2s ease;
             position: relative;
         }
@@ -116,6 +121,13 @@
             transition: color 0.3s ease;
             min-width: 300px;
             resize: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% - 40px);
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .editable-text:focus {
@@ -162,26 +174,36 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
             .container {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr;
+                grid-template-rows: 60vh 40vh;
+                height: calc(100vh - 20px);
             }
             
             .panel-left {
                 padding: 20px;
+                height: 60vh;
+            }
+            
+            .panel-right {
+                height: 40vh;
             }
             
             .color-palette {
-                grid-template-columns: repeat(8, 1fr);
+                grid-template-columns: repeat(10, 1fr);
             }
             
             .color-option {
-                width: 35px;
-                height: 35px;
+                width: 25px;
+                height: 25px;
             }
             
             .editable-text {
-                font-size: 40px;
+                font-size: 32px;
             }
         }
     </style>
@@ -228,16 +250,28 @@
     </div>
 
     <script>
-        // Paleta de 40 colores vibrantes y diversos
+        // Paleta de 40 colores ordenados por hue (escala cromática)
         const colorPalette = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
-            '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
-            '#FF6348', '#2ED573', '#3742FA', '#A55EEA', '#26DE81',
-            '#FD79A8', '#FDCB6E', '#6C5CE7', '#74B9FF', '#00B894',
-            '#E17055', '#81ECEC', '#00CEC9', '#55A3FF', '#F39C12',
-            '#E74C3C', '#9B59B6', '#3498DB', '#1ABC9C', '#F1C40F',
-            '#E67E22', '#95A5A6', '#34495E', '#2C3E50', '#8E44AD',
-            '#2980B9', '#27AE60', '#F39C12', '#D35400', '#C0392B'
+            // Rojos
+            '#FF0000', '#FF1744', '#F44336', '#E91E63', '#FF5722',
+            // Naranjas
+            '#FF9800', '#FF6D00', '#FF8F00', '#FFC107', '#FFB300',
+            // Amarillos
+            '#FFEB3B', '#FFF176', '#FFFF00', '#F9FBE7', '#F0F4C3',
+            // Verdes claros
+            '#8BC34A', '#9CCC65', '#AED581', '#C5E1A5', '#DCEDC8',
+            // Verdes
+            '#4CAF50', '#66BB6A', '#2E7D32', '#388E3C', '#43A047',
+            // Verdes azulados
+            '#009688', '#26A69A', '#4DB6AC', '#80CBC4', '#B2DFDB',
+            // Azules claros
+            '#00BCD4', '#26C6DA', '#4DD0E1', '#80DEEA', '#B2EBF2',
+            // Azules
+            '#2196F3', '#42A5F5', '#64B5F6', '#90CAF9', '#BBDEFB',
+            // Azules oscuros
+            '#3F51B5', '#5C6BC0', '#7986CB', '#9FA8DA', '#C5CAE9',
+            // Púrpuras
+            '#9C27B0', '#BA68C8', '#CE93D8', '#E1BEE7', '#F3E5F5'
         ];
 
         let selectedTextColor = '#000000';
@@ -306,10 +340,20 @@
             selectColor('#000000', true, firstTextColor);
             selectColor('#ffffff', false, firstBgColor);
             
-            // Auto-ajustar altura del textarea
+            // Auto-ajustar altura del textarea manteniendo centrado
             editableText.addEventListener('input', function() {
+                // Resetear altura para calcular la nueva
                 this.style.height = 'auto';
-                this.style.height = this.scrollHeight + 'px';
+                
+                // Si el contenido es muy largo, permitir scroll pero mantener posición
+                const maxHeight = window.innerHeight * 0.8;
+                if (this.scrollHeight > maxHeight) {
+                    this.style.height = maxHeight + 'px';
+                    this.style.overflowY = 'auto';
+                } else {
+                    this.style.height = this.scrollHeight + 'px';
+                    this.style.overflowY = 'hidden';
+                }
             });
         }
 
