@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobador de Combinaciones de Color</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            min-height: 80vh;
+        }
+
+        .panel-left {
+            background: #f8fafc;
+            padding: 30px;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .panel-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        h1 {
+            color: #1e293b;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .color-section {
+            margin-bottom: 30px;
+        }
+
+        .color-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .current-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid #d1d5db;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .color-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .color-option.selected {
+            border-color: #1e293b;
+            transform: scale(1.05);
+        }
+
+        .editable-text {
+            font-family: 'Poppins', sans-serif;
+            font-size: 60px;
+            font-weight: 400;
+            border: none;
+            outline: none;
+            background: transparent;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            transition: color 0.3s ease;
+            min-width: 300px;
+            resize: none;
+        }
+
+        .editable-text:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .color-info {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .color-info h3 {
+            color: #374151;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .color-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .color-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .color-detail:last-child {
+            border-bottom: none;
+        }
+
+        .color-value {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            
+            .panel-left {
+                padding: 20px;
+            }
+            
+            .color-palette {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            
+            .color-option {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .editable-text {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel-left">
+            <h1>🎨 Combinaciones de Color</h1>
+            
+            <div class="color-section">
+                <div class="color-label">
+                    <span>Color del Texto</span>
+                    <div class="current-color" id="textColorPreview"></div>
+                </div>
+                <div class="color-palette" id="textColorPalette"></div>
+            </div>
+
+            <div class="color-section">
+                <div class="color-label">
+                    <span>Color del Fondo</span>
+                    <div class="current-color" id="bgColorPreview"></div>
+                </div>
+                <div class="color-palette" id="bgColorPalette"></div>
+            </div>
+
+            <div class="color-info">
+                <h3>Información de Colores</h3>
+                <div class="color-details">
+                    <div class="color-detail">
+                        <span>Texto:</span>
+                        <span class="color-value" id="textColorValue">#000000</span>
+                    </div>
+                    <div class="color-detail">
+                        <span>Fondo:</span>
+                        <span class="color-value" id="bgColorValue">#ffffff</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-right" id="previewPanel">
+            <textarea class="editable-text" id="editableText" placeholder="Escribe tu texto aquí...">Texto de Prueba</textarea>
+        </div>
+    </div>
+
+    <script>
+        // Paleta de 40 colores vibrantes y diversos
+        const colorPalette = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
+            '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
+            '#FF6348', '#2ED573', '#3742FA', '#A55EEA', '#26DE81',
+            '#FD79A8', '#FDCB6E', '#6C5CE7', '#74B9FF', '#00B894',
+            '#E17055', '#81ECEC', '#00CEC9', '#55A3FF', '#F39C12',
+            '#E74C3C', '#9B59B6', '#3498DB', '#1ABC9C', '#F1C40F',
+            '#E67E22', '#95A5A6', '#34495E', '#2C3E50', '#8E44AD',
+            '#2980B9', '#27AE60', '#F39C12', '#D35400', '#C0392B'
+        ];
+
+        let selectedTextColor = '#000000';
+        let selectedBgColor = '#ffffff';
+
+        const textColorPalette = document.getElementById('textColorPalette');
+        const bgColorPalette = document.getElementById('bgColorPalette');
+        const textColorPreview = document.getElementById('textColorPreview');
+        const bgColorPreview = document.getElementById('bgColorPreview');
+        const textColorValue = document.getElementById('textColorValue');
+        const bgColorValue = document.getElementById('bgColorValue');
+        const previewPanel = document.getElementById('previewPanel');
+        const editableText = document.getElementById('editableText');
+
+        // Crear paletas de colores
+        function createColorPalette(container, isTextColor) {
+            colorPalette.forEach((color, index) => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'color-option';
+                colorDiv.style.backgroundColor = color;
+                colorDiv.dataset.color = color;
+                colorDiv.dataset.index = index;
+                colorDiv.addEventListener('click', () => {
+                    selectColor(color, isTextColor, colorDiv);
+                });
+                container.appendChild(colorDiv);
+            });
+        }
+
+        // Seleccionar color
+        function selectColor(color, isTextColor, selectedElement) {
+            if (isTextColor) {
+                selectedTextColor = color;
+                textColorPreview.style.backgroundColor = color;
+                textColorValue.textContent = color;
+                editableText.style.color = color;
+                
+                // Actualizar selección visual
+                document.querySelectorAll('#textColorPalette .color-option').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                selectedElement.classList.add('selected');
+            } else {
+                selectedBgColor = color;
+                bgColorPreview.style.backgroundColor = color;
+                bgColorValue.textContent = color;
+                previewPanel.style.backgroundColor = color;
+                
+                // Actualizar selección visual
+                document.querySelectorAll('#bgColorPalette .color-option').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                selectedElement.classList.add('selected');
+            }
+        }
+
+        // Inicializar la aplicación
+        function init() {
+            createColorPalette(textColorPalette, true);
+            createColorPalette(bgColorPalette, false);
+            
+            // Configurar colores iniciales - seleccionar el primer elemento de cada paleta
+            const firstTextColor = textColorPalette.querySelector('.color-option');
+            const firstBgColor = bgColorPalette.querySelector('.color-option');
+            
+            selectColor('#000000', true, firstTextColor);
+            selectColor('#ffffff', false, firstBgColor);
+            
+            // Auto-ajustar altura del textarea
+            editableText.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        }
+
+        // Inicializar cuando la página carga
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
